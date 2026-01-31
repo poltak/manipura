@@ -21,11 +21,19 @@ AI-mediated communication for couples to bridge linguistic and emotional gaps. I
 - **Shared Memory:** Maintaining a "Relationship Context" (preferences, recurring patterns, support needs) accessible to both partners' AI instances.
 
 ## Technical Goals
-- **Monorepo Architecture:** Managed as a single repository using a workspace-based approach (e.g., Turborepo or npm/pnpm workspaces).
-    - `apps/bridge-web`: The SvelteKit/Tailwind user interface (the "Cockpit").
+- **Monorepo Architecture:** Managed as a single repository using `pnpm` workspaces (optionally Turborepo once CI exists).
+    - `apps/bridge-web`: Next.js (React) + Tailwind + Lucide React UI (the "Cockpit").
+    - `apps/api`: Lightweight API (Fastify or Hono) for auth, messaging, and mediation.
     - `packages/core`: Shared logic, types, and the "Mediator" prompt engine.
-    - `packages/gateway`: The opinionated OpenClaw distribution (the "Engine").
-    - `infra/vault`: Docker/Terraform configs for deploying isolated "Vault" instances.
-- **The "Vault" Model:** Every couple receives a dedicated, isolated Docker container ("The Vault") for their data and LLM context, ensuring logical separation and a path to user-owned hosting.
-- **Prototype Interface:** SvelteKit-based web application integrating with LLMs via context-aware "Mediator" prompts.
+    - `packages/llm`: Provider abstraction and prompt templates.
+    - `infra/vault`: Docker/Terraform configs for deploying isolated "Vault" instances (phase 2+).
+- **The "Vault" Model (Revised):** Treat the Vault as a *logical namespace* first (strict tenancy + encryption), then graduate to per-couple containers for user-owned hosting. This keeps the prototype shippable without heavy infra while preserving the long-term isolation promise.
+- **Data & Memory:** Postgres + pgvector (or SQLite + vector extension for local dev) to store message history, relationship context, and embeddings for recall.
+- **Prototype Interface:** Next.js-based web app integrating with LLMs via context-aware "Mediator" prompts and a single shared "Unified Stream."
+- **Operational Goals:** Audit logs for all mediated transforms; explicit user consent boundaries; exportable vault data for portability.
 
+## Prototype Scope (Phase 0)
+- Single deployment with strict per-couple tenancy keys and optional end-to-end encryption.
+- One shared conversation view with mediation suggestions (rephrase, soften, clarify intent).
+- Basic check-ins (scheduled via cron/worker) and a minimal "relationship context" editor.
+- Provider-agnostic LLM layer (OpenAI/Anthropic/local) behind a single interface.
