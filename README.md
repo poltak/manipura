@@ -3,6 +3,13 @@
 ## Vision
 AI-mediated communication for couples to bridge linguistic and emotional gaps. Inspired by cross-cultural relationships (specifically English/Vietnamese) where literal translation often misses the emotional or cultural nuance.
 
+## Install & Run
+- From repo root:
+  - Install dependencies: `npm install`
+  - Run the web app: `npm run dev`
+  - Run unit tests: `npm run test:unit`
+  - Run all tests (unit + e2e): `npm run test`
+
 ## Core Features & Philosophy
 
 ### 1. Meaning Extraction (The "Unified Decoder")
