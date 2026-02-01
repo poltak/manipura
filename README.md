@@ -1,7 +1,7 @@
 # Manipura - Project Documentation
 
 ## Vision
-AI-mediated communication for couples to bridge linguistic and emotional gaps. Inspired by cross-cultural relationships (specifically English/Vietnamese) where literal translation often misses the emotional or cultural nuance.
+AI-mediated communication for couples to bridge linguistic and emotional gaps. Inspired by cross-cultural relationships where literal translation often misses the emotional or cultural nuance.
 
 ## Install & Run
 - From repo root:
@@ -9,6 +9,17 @@ AI-mediated communication for couples to bridge linguistic and emotional gaps. I
   - Run the web app: `npm run dev`
   - Run unit tests: `npm run test:unit`
   - Run all tests (unit + e2e): `npm run test`
+
+## Current State (Repo Today)
+- `apps/bridge-web`: Next.js app with a unified chat UI and a local `/api/mediate` route.
+- `packages/core`: Shared mediation logic (`mediateMessage`) with unit tests.
+- Test coverage: Vitest for unit tests and Playwright for E2E.
+- Tooling: npm workspaces with root scripts (`package.json`).
+
+## Roadmap (Planned)
+- `packages/llm`: Provider abstraction + OpenClaw adapter.
+- `apps/api`: Standalone API service (auth, messaging, mediation).
+- Vault + persistence layer (tenant isolation, data export).
 
 ## Core Features & Philosophy
 
