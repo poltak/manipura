@@ -4,3 +4,5 @@ dist
 .DS_Store
 *.local
 package-lock.json
+apps/bridge-web/test-results/
+apps/bridge-web/playwright-report/

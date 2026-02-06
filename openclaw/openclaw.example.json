@@ -1,0 +1,43 @@
+{
+  "gateway": {
+    "mode": "local",
+    "http": {
+      "endpoints": {
+        "chatCompletions": { "enabled": true }
+      }
+    },
+    "auth": {
+      "mode": "token"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "~/.openclaw/workspace-manipura",
+      "sandbox": {
+        "mode": "all",
+        "scope": "session",
+        "workspaceAccess": "rw",
+        "docker": {
+          "network": "bridge"
+        }
+      }
+    }
+  },
+  "tools": {
+    "profile": "minimal",
+    "allow": ["group:fs", "group:memory", "group:web", "session_status"],
+    "deny": [
+      "group:runtime",
+      "group:ui",
+      "group:automation",
+      "group:messaging",
+      "group:nodes"
+    ],
+    "elevated": {
+      "enabled": false
+    },
+    "sandbox": {
+      "tools": ["group:fs", "group:memory", "group:web", "session_status"]
+    }
+  }
+}
