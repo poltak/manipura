@@ -1,18 +1,44 @@
 import { createServer } from "node:http";
 
+import { resolveRequestId } from "./middleware/request-id";
 import { handleHealth } from "./routes/health";
 import { handleMediate } from "./routes/mediate";
 
 const DEFAULT_PORT = 4000;
 
+type ErrorCode = "NOT_FOUND" | "INTERNAL_ERROR";
+
 function sendJson(
   response: import("node:http").ServerResponse,
   status: number,
-  body: unknown
+  body: unknown,
+  requestId: string
 ) {
   response.statusCode = status;
   response.setHeader("Content-Type", "application/json");
+  response.setHeader("X-Request-Id", requestId);
   response.end(JSON.stringify(body));
+}
+
+function sendError(
+  response: import("node:http").ServerResponse,
+  status: number,
+  code: ErrorCode,
+  message: string,
+  requestId: string
+) {
+  sendJson(
+    response,
+    status,
+    {
+      error: {
+        code,
+        message,
+        requestId
+      }
+    },
+    requestId
+  );
 }
 
 async function parseBody(request: import("node:http").IncomingMessage) {
@@ -33,34 +59,52 @@ async function parseBody(request: import("node:http").IncomingMessage) {
 
 export function startServer(port = DEFAULT_PORT) {
   const server = createServer(async (request, response) => {
-    const method = request.method || "GET";
-    const url = request.url || "/";
+    const incomingRequestId = request.headers["x-request-id"];
+    const requestId = resolveRequestId(
+      Array.isArray(incomingRequestId) ? incomingRequestId[0] : incomingRequestId
+    );
 
-    if (method === "GET" && url === "/health") {
-      const result = handleHealth();
-      sendJson(response, result.status, result.body);
-      return;
-    }
+    try {
+      const method = request.method || "GET";
+      const url = request.url || "/";
 
-    if (method === "POST" && url === "/v1/mediate") {
-      const parsedBody = await parseBody(request);
-
-      if (parsedBody === null || typeof parsedBody !== "object") {
-        sendJson(response, 400, {
-          mediated: "Invalid JSON request body.",
-          tone: "clarify"
-        });
+      if (method === "GET" && url === "/health") {
+        const result = handleHealth();
+        sendJson(response, result.status, result.body, requestId);
         return;
       }
 
-      const result = await handleMediate(parsedBody as { message?: string });
-      sendJson(response, result.status, result.body);
-      return;
-    }
+      if (method === "POST" && url === "/v1/mediate") {
+        const parsedBody = await parseBody(request);
 
-    sendJson(response, 404, {
-      error: "Not found"
-    });
+        if (parsedBody === null || typeof parsedBody !== "object") {
+          sendJson(
+            response,
+            400,
+            {
+              mediated: "Invalid JSON request body.",
+              tone: "clarify"
+            },
+            requestId
+          );
+          return;
+        }
+
+        const result = await handleMediate(parsedBody as { message?: string });
+        sendJson(response, result.status, result.body, requestId);
+        return;
+      }
+
+      sendError(response, 404, "NOT_FOUND", "Not found", requestId);
+    } catch {
+      sendError(
+        response,
+        500,
+        "INTERNAL_ERROR",
+        "Unexpected server error",
+        requestId
+      );
+    }
   });
 
   server.listen(port);
