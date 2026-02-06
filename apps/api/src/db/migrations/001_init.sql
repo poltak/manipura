@@ -60,3 +60,15 @@ CREATE TABLE IF NOT EXISTS mediation_events (
 );
 CREATE INDEX IF NOT EXISTS idx_mediation_events_couple_created
   ON mediation_events(couple_id, created_at);
+
+CREATE TABLE IF NOT EXISTS relationship_context (
+  id TEXT PRIMARY KEY,
+  couple_id TEXT NOT NULL UNIQUE,
+  communication_style TEXT NOT NULL,
+  preferences_json TEXT NOT NULL,
+  triggers_json TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (couple_id) REFERENCES couples(id)
+);
+CREATE INDEX IF NOT EXISTS idx_relationship_context_couple
+  ON relationship_context(couple_id);

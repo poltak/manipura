@@ -10,6 +10,10 @@ function createRepositoriesMock(): ApiRepositories {
         id: "evt_test",
         createdAt: new Date().toISOString()
       })
+    },
+    context: {
+      get: vi.fn(),
+      upsert: vi.fn()
     }
   };
 }
