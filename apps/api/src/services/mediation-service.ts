@@ -5,18 +5,31 @@ import {
   mediateWithOpenClaw
 } from "../../../../packages/llm/src/openclaw";
 
-import type { MediationResponse } from "../types";
+import type { MediationExecution } from "../types";
 
-export async function mediateText(message: string): Promise<MediationResponse> {
+export async function mediateText(message: string): Promise<MediationExecution> {
   const prompt = buildMediationPrompt(message);
 
   if (isOpenClawConfigured()) {
     try {
-      return await mediateWithOpenClaw(prompt);
+      const response = await mediateWithOpenClaw(prompt);
+      return {
+        response,
+        runtime: "openclaw",
+        fallbackReason: null
+      };
     } catch {
-      return mediateMessage(message);
+      return {
+        response: mediateMessage(message),
+        runtime: "local",
+        fallbackReason: "openclaw_error"
+      };
     }
   }
 
-  return mediateMessage(message);
+  return {
+    response: mediateMessage(message),
+    runtime: "local",
+    fallbackReason: "not_configured"
+  };
 }

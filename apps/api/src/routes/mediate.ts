@@ -1,8 +1,12 @@
+import { defaultRepositories, type ApiRepositories } from "../db/repositories";
 import type { MediationRequest } from "../types";
 import { mediateText } from "../services/mediation-service";
 
-export async function handleMediate(input: MediationRequest) {
-  const message = input.message?.trim();
+export async function handleMediate(
+  input: MediationRequest,
+  repositories: ApiRepositories = defaultRepositories
+) {
+  const message = typeof input.message === "string" ? input.message.trim() : "";
 
   if (!message) {
     return {
@@ -11,9 +15,19 @@ export async function handleMediate(input: MediationRequest) {
     };
   }
 
-  const result = await mediateText(message);
+  const execution = await mediateText(message);
+
+  await repositories.mediationEvents.create({
+    threadId: typeof input.threadId === "string" ? input.threadId : null,
+    inputText: message,
+    outputText: execution.response.mediated,
+    tone: execution.response.tone,
+    runtime: execution.runtime,
+    fallbackReason: execution.fallbackReason
+  });
+
   return {
     status: 200,
-    body: result
+    body: execution.response
   };
 }
