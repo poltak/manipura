@@ -10,14 +10,24 @@ AI-mediated communication for couples to bridge linguistic and emotional gaps. I
   - Run unit tests: `npm run test:unit`
   - Run all tests (unit + e2e): `npm run test`
 
+## OpenClaw (Dev)
+- Optional: run OpenClaw locally and point the app at it.
+- Copy `apps/bridge-web/.env.example` to `apps/bridge-web/.env.local` and set:
+  - `OPENCLAW_GATEWAY_URL`
+  - `OPENCLAW_GATEWAY_TOKEN`
+  - `OPENCLAW_AGENT_ID` (default: `main`)
+- Sample gateway config (host + Docker sandbox): `openclaw/openclaw.example.json`
+
 ## Current State (Repo Today)
-- `apps/bridge-web`: Next.js app with a unified chat UI and a local `/api/mediate` route.
+- `apps/bridge-web`: Next.js app with a unified chat UI and a `/api/mediate` proxy route.
+- `apps/api`: Standalone API scaffold with `/health` and `POST /v1/mediate`.
 - `packages/core`: Shared mediation logic (`mediateMessage`) with unit tests.
-- Test coverage: Vitest for unit tests and Playwright for E2E.
+- `packages/llm`: OpenClaw adapter + mediation output parsing.
+- Test coverage: Vitest for unit tests (core + llm + web) and Playwright for E2E.
 - Tooling: npm workspaces with root scripts (`package.json`).
 
 ## Roadmap (Planned)
-- `packages/llm`: Provider abstraction + OpenClaw adapter.
+- OpenClaw hardening (stricter tool policies, production sandboxing).
 - `apps/api`: Standalone API service (auth, messaging, mediation).
 - Vault + persistence layer (tenant isolation, data export).
 
